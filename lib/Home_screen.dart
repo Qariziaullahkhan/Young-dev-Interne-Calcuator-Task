@@ -1,171 +1,240 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:math_expressions/math_expressions.dart';
+import 'package:youngdev_interne_calculator_task/App_colors.dart';
 
-class CalculatorScreen extends StatefulWidget {
-  const CalculatorScreen({super.key});
+import 'custom_button.dart';
+
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  State<CalculatorScreen> createState() => _CalculatorScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _CalculatorScreenState extends State<CalculatorScreen> {
-  String _output = '0';
-String _calculation = '';
-double num1 = 0.0;
-double num2 = 0.0;
-String operand = '';
-void _buttonPressed(String buttonText) {
-setState(() {
-if (buttonText == 'C') {
-_output = '0';
-_calculation = '';
-num1 = 0.0;
-num2 = 0.0;
-operand = '';
-} else if (buttonText == '+' || buttonText == '-' || buttonText == 'x' || buttonText == '/') {
-num1 = double.parse(_output);
-operand = buttonText;
-_calculation += ' $_output $operand';
-_output = '0';
-} else if (buttonText == '=') {
-num2 = double.parse(_output);
-_calculation += ' $_output =';
-if (operand == '+') {
-_output = (num1 + num2).toString();
-}
-if (operand == '-') {
-_output = (num1 - num2).toString();
-}
-if (operand == 'x') {
-_output = (num1 * num2).toString();
-}
-if (operand == '/') {
-_output = (num1 / num2).toString();
-}
-num1 = 0.0;
-num2 = 0.0;
-operand = '';
-} else {
-if (_output == '0' && buttonText != '.') {
-_output = buttonText;
-} else if (buttonText == '.' && !_output.contains('.')) {
-_output += buttonText;
-} else if (buttonText != '.') {
-_output += buttonText;
-}
-}
-});
-}
-Widget buildButton(String buttonText) {
-return Expanded(
-child: Padding(
-padding: const EdgeInsets.all(4.0),
-child: ElevatedButton(
-  style: ElevatedButton.styleFrom(
-    backgroundColor: Colors.greenAccent
-  ),
-onPressed: () {
-_buttonPressed(buttonText);
-},
-child: Text(
-buttonText,
-style: TextStyle(fontSize: 25.0),
-),
-),
-),
-);
-}
+class _HomeScreenState extends State<HomeScreen> {
+  var userInput = '';
+  var result = '0';
+
+  void equalPressed() {
+    Parser p = Parser();
+    Expression expression = p.parse(userInput);
+    ContextModel contextModel = ContextModel();
+    double eval = expression.evaluate(EvaluationType.REAL, contextModel);
+    result = eval.toString();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-  backgroundColor: Color(0xC45A1B02),
-title: Text('Calculator App' , style: TextStyle(color: Color.fromRGBO(94, 248, 248, 0.89),fontSize: 25,fontWeight: FontWeight.w700),),
-centerTitle: true,
-),
-backgroundColor: Color.fromRGBO(119, 107, 230, 1),
-   body: Column(
-children: [
-Expanded(
-child: Container(
-alignment: Alignment.bottomRight,
-padding: EdgeInsets.symmetric(vertical: 24.0, horizontal: 12.0),
-child: Column(
-crossAxisAlignment: CrossAxisAlignment.end,
-mainAxisAlignment: MainAxisAlignment.end,
-children: [
-Text(
-_calculation,
-style: TextStyle(fontSize: 20.0, color: Colors.grey),
-),
-Text(
-_output,
-style: TextStyle(fontSize: 48.0),
-),
-],
-),
-),
-),
-Expanded(
-flex: 2,
-child: Column(
-children: [
-Expanded(
-child: Row(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-buildButton('7'),
-buildButton('8'),
-buildButton('9'),
-buildButton('/'),
-],
-),
-),
-Expanded(
-child: Row(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-buildButton('4'),
-buildButton('5'),
-buildButton('6'),
-buildButton('x'),
-],
-),
-),
-Expanded(
-child: Row(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-buildButton('1'),
-buildButton('2'),
-buildButton('3'),
-buildButton('-'),
-],
-),
-),
-Expanded(
-child: Row(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-buildButton('.'),
-buildButton('0'),
-buildButton('C'),
-buildButton('+'),
-],
-),
-),
-Expanded(
-child: Row(
-crossAxisAlignment: CrossAxisAlignment.stretch,
-children: [
-buildButton('='),
-],
-),
-),
-],
-),
-),
-],
- ),
+      backgroundColor: Colors.greenAccent,
+      appBar: AppBar(title: const Text("Calculator Screen",style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: Colors.white),),
+      centerTitle: true,
+      backgroundColor: Appcolors.pinkColor,),
+        body: Column(
+          
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: EdgeInsets.only(right: 25, left: 10),
+              child: Text(
+                userInput == '' ? '0' : userInput.toString(),
+                textAlign: TextAlign.right,
+                style:const TextStyle(
+                  fontSize: 25,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+       const   Padding(
+            padding:  EdgeInsets.symmetric(horizontal: 20),
+            child: Divider(
+              color: Colors.red,
+            
+              
+            ),
+          ),
+          const Gap(20),
+          Align(
+            alignment: Alignment.centerRight,
+            child: Padding(
+              padding: const EdgeInsets.only(right: 25, left: 10),
+              child: Text(
+                result.toString(),
+                textAlign: TextAlign.right,
+                maxLines: 1,
+                style:const TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+                    const Gap(20),
+
+         
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CalculatorButton(
+                  buttonTitle: 'AC',
+                  buttonOnPress: () {
+                    userInput = '';
+                    result = '0';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '%',
+                  buttonOnPress: () {
+                    userInput += '%';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: 'DEL',
+                  buttonOnPress: () {
+                    userInput = userInput.substring(0, userInput.length - 1);
+
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                
+                  buttonTitle: '/',
+                  buttonColor: Color.fromARGB(255, 179, 64, 64),
+                  buttonOnPress: () {
+                    userInput += '/';
+                    setState(() {});
+                  }),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CalculatorButton(
+                  buttonTitle: '7',
+                  buttonOnPress: () {
+                    userInput += '7';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '8',
+                  buttonOnPress: () {
+                    userInput += '8';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '9',
+                  buttonOnPress: () {
+                    userInput += '9';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: 'x',
+                                    buttonColor: Color.fromARGB(255, 179, 64, 64),
+
+                  buttonOnPress: () {
+                    userInput += '*';
+                    setState(() {});
+                  }),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CalculatorButton(
+                  buttonTitle: '4',
+                  buttonOnPress: () {
+                    userInput += '4';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '5',
+                  buttonOnPress: () {
+                    userInput += '5';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '6',
+                  buttonOnPress: () {
+                    userInput += '6';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '-',
+                                    buttonColor: Color.fromARGB(255, 179, 64, 64),
+
+                  buttonOnPress: () {
+                    userInput += '-';
+                    setState(() {});
+                  }),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CalculatorButton(
+                  buttonTitle: '1',
+                  buttonOnPress: () {
+                    userInput += '1';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '2',
+                  buttonOnPress: () {
+                    userInput += '2';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '3',
+                  buttonOnPress: () {
+                    userInput += '3';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '+',
+                                    buttonColor: Color.fromARGB(255, 179, 64, 64),
+
+                  buttonOnPress: () {
+                    userInput += '+';
+                    setState(() {});
+                  }),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CalculatorButton(
+                  buttonTitle: '.',
+                  buttonOnPress: () {
+                    userInput += '.';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '0',
+                  buttonOnPress: () {
+                    userInput += '0';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '00',
+                  buttonOnPress: () {
+                    userInput += '00';
+                    setState(() {});
+                  }),
+              CalculatorButton(
+                  buttonTitle: '=',
+                                    buttonColor: Color.fromARGB(255, 179, 64, 64),
+
+                  buttonOnPress: () {
+                    equalPressed();
+                    setState(() {});
+                  }),
+            ],
+          ),
+          const Gap(20),
+        ],
+      ),
     );
   }
 }
